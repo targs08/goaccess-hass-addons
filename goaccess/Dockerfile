@@ -7,6 +7,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libgeoip-dev \
     wget \
     gpg \
+    syslog-ng-core \
+    logrotate \
     && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN wget -qO - https://deb.goaccess.io/gnugpg.key | gpg --dearmor | tee /usr/share/keyrings/goaccess.gpg >/dev/null \
