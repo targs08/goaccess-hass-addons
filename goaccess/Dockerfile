@@ -16,14 +16,14 @@ RUN wget -qO - https://deb.goaccess.io/gnugpg.key | gpg --dearmor | tee /usr/sha
 
 COPY rootfs /
 
-RUN wget -qO dbip-country-lite-2025-01.mmdb.gz https://download.db-ip.com/free/dbip-country-lite-2025-01.mmdb.gz \
-    && gunzip dbip-country-lite-2025-01.mmdb.gz \
-    && mv dbip-country-lite-2025-01.mmdb /usr/dbip/dbip-country.mmdb
-
-RUN wget -qO dbip-city-lite-2025-01.mmdb.gz https://download.db-ip.com/free/dbip-city-lite-2025-01.mmdb.gz \
-    && gunzip dbip-city-lite-2025-01.mmdb.gz \
-    && mv dbip-city-lite-2025-01.mmdb /usr/dbip/dbip-city.mmdb
-
-RUN wget -qO dbip-asn-lite-2025-01.mmdb.gz https://download.db-ip.com/free/dbip-asn-lite-2025-01.mmdb.gz \
-    && gunzip dbip-asn-lite-2025-01.mmdb.gz \
-    && mv dbip-asn-lite-2025-01.mmdb /usr/dbip/dbip-asn.mmdb
+# db-ip.com only hosts the most recent monthly releases, so the month is
+# computed at build time (falling back to the previous month around the
+# start of a month, before the new release is published).
+RUN this_month=$(date +%Y-%m); \
+    prev_month=$(date -d "$(date +%Y-%m-15) -1 month" +%Y-%m); \
+    for db in country city asn; do \
+        wget -qO "dbip-${db}.mmdb.gz" "https://download.db-ip.com/free/dbip-${db}-lite-${this_month}.mmdb.gz" \
+            || wget -qO "dbip-${db}.mmdb.gz" "https://download.db-ip.com/free/dbip-${db}-lite-${prev_month}.mmdb.gz"; \
+        gunzip "dbip-${db}.mmdb.gz"; \
+        mv "dbip-${db}.mmdb" "/usr/dbip/dbip-${db}.mmdb"; \
+    done
