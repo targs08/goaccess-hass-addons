@@ -8,4 +8,8 @@
 
 bashio::log.info "Starting GoAccess..."
 
-goaccess --config-file=/config/goaccess.conf
+if [ -f /config/goaccess.conf ]; then
+    exec goaccess --config-file=/config/goaccess.conf
+else
+    exec goaccess --config-file=/data/goaccess.conf
+fi
