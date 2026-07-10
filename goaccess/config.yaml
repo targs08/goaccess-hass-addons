@@ -18,5 +18,6 @@ ingress_port: 7880
 ports:
   7880/tcp: 7880
 map:
+  - addons:rw
   - addon_config:rw
   - all_addon_configs:rw
