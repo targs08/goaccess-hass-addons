@@ -35,6 +35,60 @@ By default, GoAccess is configured for the Nginx Proxy Manager log format. You c
 
 **Note**: _Remember to restart the add-on when the GoAccess configuration has changed._
 
+## Receiving logs via syslog
+
+Instead of (or in addition to) reading log files from disk, the add-on runs a
+syslog receiver (syslog-ng) listening on port **514** (UDP and TCP). Every log
+line received is appended to `/data/logs/nginx-access.log` inside the add-on's
+private data directory, which is already enabled in the default `goaccess.conf`:
+
+```conf
+log-file /data/logs/nginx-access.log
+```
+
+syslog-ng writes each received line exactly as nginx formatted it, so GoAccess
+parses it as long as the sender uses the same format as the `log-format` option
+in `goaccess.conf`. The default configuration expects the Nginx Proxy Manager
+`proxy` log format. GoAccess supports only **one** log format for all of its
+log files, so every sender (and every file-based log source) must use the same
+format.
+
+For **Nginx Proxy Manager**, add this to the **Custom Nginx Configuration** of
+a proxy host — the `proxy` format is already defined by NPM and matches the
+default `goaccess.conf`:
+
+```nginx
+access_log syslog:server=<home-assistant-ip>:514,tag=nginx proxy;
+```
+
+For a **plain nginx** instance, define the same format first:
+
+```nginx
+log_format proxy '[$time_local] $upstream_cache_status $upstream_status $status - $request_method $scheme $host "$request_uri" [Client $remote_addr] [Length $body_bytes_sent] [Gzip $gzip_ratio] [Sent-to $server] "$http_user_agent" "$http_referer"';
+access_log syslog:server=<home-assistant-ip>:514,tag=nginx proxy;
+```
+
+Alternatively, send any other format (e.g. `combined`) and change `log-format`
+in `goaccess.conf` accordingly (e.g. `log-format COMBINED`).
+
+Note that nginx only supports UDP for `syslog:` targets — if you need TCP
+delivery, use a local syslog daemon on the sender that forwards to port 514/TCP
+of this add-on.
+
+### Log rotation
+
+Received log files are rotated automatically:
+
+- once a day, and additionally as soon as a file grows beyond
+  **Maximum log size** (`log_rotate_maxsize`, default `50M`);
+- rotated files are compressed and the last **Rotated logs to keep**
+  (`log_rotate_keep`, default `7`) copies are kept.
+
+Rotation uses `copytruncate`, so GoAccess and syslog-ng keep working across
+rotations without restarts. Note that GoAccess real-time statistics are kept in
+memory, so already-parsed data is not lost when the file is rotated; after an
+add-on restart only the lines still present in the kept files are re-parsed.
+
 ## GeoIP
 
 The add-on includes the free [DB IP](https://db-ip.com) database for GeoIP lookups, and is enabled by default.

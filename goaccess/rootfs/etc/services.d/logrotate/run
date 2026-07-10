@@ -1,0 +1,16 @@
+#!/usr/bin/with-contenv bashio
+# ==============================================================================
+# Rotate the received log files periodically
+# s6-overlay docs: https://github.com/just-containers/s6-overlay
+# ==============================================================================
+
+# shellcheck shell=bash
+
+bashio::log.info "Starting log rotation service..."
+
+while true; do
+    if ! logrotate -s /data/logrotate.status /etc/logrotate-goaccess.conf; then
+        bashio::log.warning "logrotate run failed, see output above"
+    fi
+    sleep 3600
+done

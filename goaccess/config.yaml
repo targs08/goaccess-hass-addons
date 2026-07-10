@@ -1,8 +1,8 @@
 name: GoAccess
-version: 1.0.1
+version: 1.1.0
 slug: goaccess
 description: Open source real-time web log analyzer
-url: https://github.com/TECH7Fox/goaccess-hass-addons
+url: https://github.com/targs08/goaccess-hass-addons
 image: ghcr.io/tech7fox/goaccess-hass-addon
 panel_title: GoAccess
 panel_icon: mdi:chart-bar
@@ -17,7 +17,11 @@ ingress: true
 ingress_port: 7880
 ports:
   7880/tcp: 7880
-map:
-  - addons:rw
-  - addon_config:rw
-  - all_addon_configs:rw
+  514/udp: 514
+  514/tcp: 514
+options:
+  log_rotate_keep: 7
+  log_rotate_maxsize: 50M
+schema:
+  log_rotate_keep: int(1,365)
+  log_rotate_maxsize: match(^[0-9]+[kMG]?$)

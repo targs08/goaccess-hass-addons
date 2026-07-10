@@ -1,0 +1,9 @@
+#!/usr/bin/with-contenv bashio
+# ==============================================================================
+# Stop the log rotation service
+# s6-overlay docs: https://github.com/just-containers/s6-overlay
+# ==============================================================================
+
+# shellcheck shell=bash
+
+bashio::log.info "Stopping log rotation service..."

@@ -1,2 +1,14 @@
+configuration:
+  log_rotate_keep:
+    name: Rotated logs to keep
+    description: >-
+      Number of rotated log files to keep before the oldest one is deleted.
+  log_rotate_maxsize:
+    name: Maximum log size
+    description: >-
+      Rotate a received log file as soon as it grows beyond this size
+      (e.g. 50M, 500k, 1G), in addition to the daily rotation.
 network:
   7880/tcp: HTTP port
+  514/udp: Syslog port (UDP)
+  514/tcp: Syslog port (TCP)
